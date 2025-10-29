@@ -8,12 +8,6 @@
       {
         "assets": ["dist/**/*"]
       }
-    ],
-    [
-      "@semantic-release/npm",
-      {
-        "npmPublish": true
-      }
     ]
   ]
 }
