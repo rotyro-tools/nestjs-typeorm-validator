@@ -211,13 +211,13 @@ Build:
 npm run build
 ```
 
-Lint
+Lint:
 
 ```bash
 npm run lint
 ```
 
-Format
+Format:
 
 ```bash
 npm run format
