@@ -199,21 +199,32 @@ class BulkCreateDto {
 
 ## Development
 
+Install dependencies:
+
+```bash
+npm install
+```
+
 Build:
 
 ```bash
 npm run build
 ```
 
+Lint
+
+```bash
+npm run lint
+```
+
+Format
+
+```bash
+npm run format
+```
+
 Run tests:
 
 ```bash
 npm run test
-```
-
-Lint & format:
-
-```bash
-npm run lint
-npm run format
 ```
