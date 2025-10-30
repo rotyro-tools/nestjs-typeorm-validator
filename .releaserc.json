@@ -29,7 +29,7 @@
             },
             {
               "type": "build",
-              "section": "Dependencies and Other Build Updates",
+              "section": "Build Updates",
               "hidden": false
             }
           ]
