@@ -12,7 +12,7 @@ jest.mock('class-validator', () => {
       ((target: new (...args: unknown[]) => unknown) =>
         target) as ClassDecorator,
   );
-    return { registerDecorator, ValidatorConstraint };
+  return { registerDecorator, ValidatorConstraint };
 });
 
 describe('ExistsIn test suite', () => {
