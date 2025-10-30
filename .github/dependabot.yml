@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+    assignees:
+      - 'rotyro'
+    labels:
+      - 'dependencies'
+      - 'automated'
+    commit-message:
+      prefix: build
+      include: scope
+    open-pull-requests-limit: 10
