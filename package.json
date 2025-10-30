@@ -73,7 +73,7 @@
     }
   },
   "dependencies": {
-    "reflect-metadata": "^0.1.13"
+    "reflect-metadata": "^0.2.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.1.0",
