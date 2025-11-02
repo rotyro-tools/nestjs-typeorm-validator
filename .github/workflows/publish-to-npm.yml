@@ -46,6 +46,36 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Import GPG key
+        run: |
+          echo "$GPG_KEY" | base64 --decode | gpg --batch --import
+        env:
+          GPG_KEY: ${{ secrets.GPG_KEY }}
+
+      - name: Create gpg wrapper script
+        run: |
+          rm -f /tmp/gpg.sh
+          echo '#!/usr/bin/env bash' > /tmp/gpg.sh
+          echo 'gpg --batch --pinentry-mode loopback --passphrase "$GPG_KEY_PASSPHRASE" "$@"' >> /tmp/gpg.sh
+          chmod +x /tmp/gpg.sh
+        env:
+          GPG_KEY_PASSPHRASE: ${{ secrets.GPG_KEY_PASSPHRASE }}
+
+      - name: Configure Git for GPG signing
+        run: |
+          # get the key ID
+          GPG_KEY_ID=$(gpg --list-secret-keys --keyid-format LONG | grep sec | head -n1 | awk '{print $2}' | cut -d'/' -f2)
+          git config --global user.name "${GIT_COMMITTER_NAME}"
+          git config --global user.email "${GIT_COMMITTER_EMAIL}"
+          git config --global commit.gpgsign true
+          git config --global tag.gpgSign true
+          git config --global user.signingkey $GPG_KEY_ID
+          git config --global gpg.program /tmp/gpg.sh
+        env:
+          GIT_COMMITTER_NAME: ${{ secrets.GIT_COMMITTER_NAME }}
+          GIT_COMMITTER_EMAIL: ${{ secrets.GIT_COMMITTER_EMAIL }}
+          GPG_KEY_PASSPHRASE: ${{ secrets.GPG_KEY_PASSPHRASE }}
+
       - name: Release
         run: npm run release
         env:
