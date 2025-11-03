@@ -29,6 +29,14 @@ This project follows the Conventional Commits specification. Examples:
 
 Commit messages are validated using commitlint and Husky (pre-commit hooks).
 
+To help format your commits correctly, you can use Commitizen:
+
+```bash
+npm run cm
+```
+
+This will guide you through creating a properly formatted commit message interactively.
+
 ## Review & Release
 
 - Maintainers will review and request changes as needed.

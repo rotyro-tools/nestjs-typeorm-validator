@@ -1,5 +1,7 @@
 # NestJS TypeORM Validator
 
+[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+
 Lightweight NestJS decorators for validating values against TypeORM entities.
 
 This package provides several decorators (more to come):
@@ -227,4 +229,10 @@ Run tests:
 
 ```bash
 npm run test
+```
+
+Commit (with Commitizen):
+
+```bash
+npm run cm
 ```
