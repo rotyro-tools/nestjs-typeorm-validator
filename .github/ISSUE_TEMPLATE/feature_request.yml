@@ -1,0 +1,47 @@
+name: 'Feature Request'
+description: 'Suggest a new feature or improvement.'
+title: '[Feature Request] '
+labels: ['enhancement']
+type: Feature Request
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have an idea to improve **nestjs-typeorm-validator**?  
+        Please describe it below.
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Problem or motivation
+      description: What problem or use case would this feature solve?
+      placeholder: |
+        I want to validate if values combinations are unique across multiple columns.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the new decorator or enhancement you'd like to see.
+      placeholder: |
+        Add a new @UniqueCombinationIn decorator that accepts an array of column names.
+    validations:
+      required: true
+    
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add any code samples, links, or other context that might help.
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Have you tried any workarounds or existing decorators?
+    validations:
+      required: false

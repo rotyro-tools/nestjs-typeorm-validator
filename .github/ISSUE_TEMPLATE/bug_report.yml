@@ -1,0 +1,71 @@
+name: 'Bug Report'
+description: 'Report a reproducible bug or unexpected behavior.'
+title: '[Bug Report] '
+labels: ['bug']
+type: Bug Report
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve **nestjs-typeorm-validator**!  
+        Please include enough detail to help us reproduce the issue.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug description
+      description: What is happening?
+      placeholder: |
+        When I use @UniqueIn, validation always passes even if the record exists.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened instead?
+      placeholder: |
+        Validation should fail if the record exists.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Minimal reproduction
+      description: Please share the minimal code to reproduce the issue.
+      placeholder: |
+        import { UniqueIn } from '@rotyro-tools/nestjs-typeorm-validator';
+
+        import { User } from '@/modules/users/entities/user.entity';
+
+        class RegisterUserDto {
+          @UniqueIn(User, 'email', null, { message: 'Email already in use' })
+          email: string;
+        }
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Provide relevant details about your environment.
+      placeholder: |
+        - OS: Ubuntu 22.04
+        - Node.js: 20.x
+        - NestJS: 10.x
+        - TypeORM: 0.3.x
+        - nestjs-typeorm-validator: 1.x.x
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Error output
+      description: Paste any relevant logs, stack traces, or console output.
+      render: shell
+    validations:
+      required: false
