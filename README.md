@@ -53,6 +53,8 @@ pnpm add @rotyro-tools/nestjs-typeorm-validator
 bun add @rotyro-tools/nestjs-typeorm-validator
 ```
 
+---
+
 ## Peer dependencies
 
 This package declares the following peer dependencies that consumers must install at compatible versions:
