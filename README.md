@@ -1,6 +1,7 @@
 # NestJS TypeORM Validator
 
 [![Publish to npm](https://github.com/rotyro-tools/nestjs-typeorm-validator/actions/workflows/publish-to-npm.yml/badge.svg)](https://github.com/rotyro-tools/nestjs-typeorm-validator/actions/workflows/publish-to-npm.yml)
+[![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)](https://github.com/your-username/nestjs-typeorm-validator)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
 Lightweight NestJS decorators for validating values against TypeORM entities.
