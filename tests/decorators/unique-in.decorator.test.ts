@@ -40,7 +40,7 @@ describe('UniqueIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'email',
-        constraints: [Dummy, 'email', undefined, undefined],
+        constraints: [Dummy, 'email', undefined],
         validator: expect.any(
           Function,
         ) as unknown as new () => ValidatorConstraintInterface,
@@ -62,7 +62,7 @@ describe('UniqueIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'email',
-        constraints: ['user', 'email', undefined, undefined],
+        constraints: ['user', 'email', undefined],
         validator: expect.any(
           Function,
         ) as unknown as new () => ValidatorConstraintInterface,
@@ -85,7 +85,7 @@ describe('UniqueIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'email',
-        constraints: [Dummy, 'email', 'secondary', undefined],
+        constraints: [Dummy, 'email', 'secondary'],
         validator: expect.any(
           Function,
         ) as unknown as new () => ValidatorConstraintInterface,
@@ -111,7 +111,7 @@ describe('UniqueIn test suite', () => {
         target: TestDto,
         propertyName: 'email',
         options,
-        constraints: [Dummy, 'email', undefined, undefined],
+        constraints: [Dummy, 'email', undefined],
         validator: expect.any(
           Function,
         ) as unknown as new () => ValidatorConstraintInterface,

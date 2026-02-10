@@ -108,11 +108,11 @@ describe('BaseValidator test suite', () => {
     } as unknown as BaseValidatorArguments;
 
     getRawOneMock.mockResolvedValue(undefined);
-    await expect(v.callValueExists('x', args)).resolves.toEqual([false, false]);
+    await expect(v.callValueExists('x', args)).resolves.toBe(false);
     expect(repo.createQueryBuilder).toHaveBeenCalledWith('entityOrTableName');
 
     getRawOneMock.mockResolvedValue({ '1': 1 });
-    await expect(v.callValueExists('y', args)).resolves.toEqual([true, true]);
+    await expect(v.callValueExists('y', args)).resolves.toBe(true);
   });
 
   test('valueExists works with string table name and custom data source name', async () => {
@@ -158,141 +158,8 @@ describe('BaseValidator test suite', () => {
       constraints: ['table_str', 'col', 'namedDS'],
     } as unknown as BaseValidatorArguments;
 
-    await expect(v.callValueExists('z', args)).resolves.toEqual([true, true]);
+    await expect(v.callValueExists('z', args)).resolves.toBe(true);
     expect(mockDataSource.getRepository).toHaveBeenCalledWith('table_str');
-  });
-
-  test('valueExists with each=true returns true when all unique values found', async () => {
-    const getRawOneMock = jest.fn().mockResolvedValue({ cnt: '2' });
-    const builder: {
-      select: jest.Mock;
-      where: jest.Mock;
-      take: jest.Mock;
-      getRawOne: jest.Mock;
-    } = {
-      select: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      take: jest.fn().mockReturnThis(),
-      getRawOne: getRawOneMock,
-    };
-    const repo: { createQueryBuilder: jest.Mock } = {
-      createQueryBuilder: jest.fn().mockReturnValue(builder),
-    };
-    type MockDS = {
-      isInitialized: boolean;
-      initialize: () => Promise<MockDS>;
-      getRepository: (arg?: EntityTarget<ObjectLiteral>) => unknown;
-    };
-    const mockDataSource: MockDS = {
-      isInitialized: true,
-      initialize() {
-        this.isInitialized = true;
-        return Promise.resolve(this);
-      },
-      getRepository: jest.fn().mockReturnValue(repo),
-    };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
-
-    const v = new TestValidator();
-    const args = {
-      property: 'col',
-      constraints: [DummyEntity, 'col', undefined, true],
-    } as unknown as BaseValidatorArguments;
-
-    await expect(v.callValueExists(['a', 'b', 'a'], args)).resolves.toEqual([
-      true,
-      true,
-    ]);
-    expect(repo.createQueryBuilder).toHaveBeenCalledWith('entityOrTableName');
-  });
-
-  test('valueExists with each=true returns false when not all unique values found', async () => {
-    const getRawOneMock = jest.fn().mockResolvedValue({ cnt: '1' });
-    const builder: {
-      select: jest.Mock;
-      where: jest.Mock;
-      take: jest.Mock;
-      getRawOne: jest.Mock;
-    } = {
-      select: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      take: jest.fn().mockReturnThis(),
-      getRawOne: getRawOneMock,
-    };
-    const repo: { createQueryBuilder: jest.Mock } = {
-      createQueryBuilder: jest.fn().mockReturnValue(builder),
-    };
-    type MockDS = {
-      isInitialized: boolean;
-      initialize: () => Promise<MockDS>;
-      getRepository: (arg?: EntityTarget<ObjectLiteral>) => unknown;
-    };
-    const mockDataSource: MockDS = {
-      isInitialized: true,
-      initialize() {
-        this.isInitialized = true;
-        return Promise.resolve(this);
-      },
-      getRepository: jest.fn().mockReturnValue(repo),
-    };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
-
-    const v = new TestValidator();
-    const args = {
-      property: 'col',
-      constraints: [DummyEntity, 'col', undefined, true],
-    } as unknown as BaseValidatorArguments;
-
-    await expect(v.callValueExists(['a', 'b', 'a'], args)).resolves.toEqual([
-      true,
-      false,
-    ]);
-  });
-
-  test('valueExists with each=true and empty values returns true', async () => {
-    const getRawOneMock = jest.fn();
-    const builder: {
-      select: jest.Mock;
-      where: jest.Mock;
-      take: jest.Mock;
-      getRawOne: jest.Mock;
-    } = {
-      select: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      take: jest.fn().mockReturnThis(),
-      getRawOne: getRawOneMock,
-    };
-    const repo: { createQueryBuilder: jest.Mock } = {
-      createQueryBuilder: jest.fn().mockReturnValue(builder),
-    };
-    type MockDS = {
-      isInitialized: boolean;
-      initialize: () => Promise<MockDS>;
-      getRepository: (arg?: EntityTarget<ObjectLiteral>) => unknown;
-    };
-    const mockDataSource: MockDS = {
-      isInitialized: true,
-      initialize() {
-        this.isInitialized = true;
-        return Promise.resolve(this);
-      },
-      getRepository: jest.fn().mockReturnValue(repo),
-    };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
-
-    const v = new TestValidator();
-    const args = {
-      property: 'col',
-      constraints: [DummyEntity, 'col', undefined, true],
-    } as unknown as BaseValidatorArguments;
-
-    await expect(v.callValueExists([], args)).resolves.toEqual([false, false]);
   });
 
   test('valueExists throws ValidationConfigurationError when repository reports missing metadata', async () => {
@@ -489,10 +356,10 @@ describe('BaseValidator test suite', () => {
     const v = new TestValidator();
     const args = {
       property: 'col',
-      constraints: [DummyEntity, 'col', '', false],
+      constraints: [DummyEntity, 'col', ''],
     } as unknown as BaseValidatorArguments;
 
-    await expect(v.callValueExists('val', args)).resolves.toEqual([true, true]);
+    await expect(v.callValueExists('val', args)).resolves.toBe(true);
   });
 
   test('valueExists handles null entityOrTableName gracefully', async () => {
@@ -531,10 +398,10 @@ describe('BaseValidator test suite', () => {
     const v = new TestValidator();
     const args = {
       property: 'col',
-      constraints: [null, 'col', undefined, false],
+      constraints: [null, 'col', undefined],
     } as unknown as BaseValidatorArguments;
 
-    await expect(v.callValueExists('val', args)).resolves.toEqual([true, true]);
+    await expect(v.callValueExists('val', args)).resolves.toBe(true);
   });
 
   test('valueExists handles invalid error types by wrapping them in ValidationQueryError', async () => {
@@ -578,8 +445,8 @@ describe('BaseValidator test suite', () => {
     }
   });
 
-  test('valueExists handles countResult without cnt property', async () => {
-    const getRawOneMock = jest.fn().mockResolvedValue({ notcnt: 123 });
+  test('valueExists with each=true validates single values (class-validator per-element calling)', async () => {
+    const getRawOneMock = jest.fn();
     const builder: {
       select: jest.Mock;
       where: jest.Mock;
@@ -614,96 +481,13 @@ describe('BaseValidator test suite', () => {
     const v = new TestValidator();
     const args = {
       property: 'col',
-      constraints: [DummyEntity, 'col', undefined, true],
+      constraints: [DummyEntity, 'col', undefined],
     } as unknown as BaseValidatorArguments;
 
-    await expect(v.callValueExists(['a', 'b'], args)).resolves.toEqual([
-      false,
-      false,
-    ]);
-  });
+    getRawOneMock.mockResolvedValue({ '1': 1 });
+    await expect(v.callValueExists('not-an-array', args)).resolves.toBe(true);
 
-  test('valueExists with each=true treats undefined countResult as zero (covers (countResult && ...))', async () => {
-    const getRawOneMock = jest.fn().mockResolvedValue(undefined);
-    const builder: {
-      select: jest.Mock;
-      where: jest.Mock;
-      take: jest.Mock;
-      getRawOne: jest.Mock;
-    } = {
-      select: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      take: jest.fn().mockReturnThis(),
-      getRawOne: getRawOneMock,
-    };
-    const repo: { createQueryBuilder: jest.Mock } = {
-      createQueryBuilder: jest.fn().mockReturnValue(builder),
-    };
-    type MockDS = {
-      isInitialized: boolean;
-      initialize: () => Promise<MockDS>;
-      getRepository: (arg?: EntityTarget<ObjectLiteral>) => unknown;
-    };
-    const mockDataSource: MockDS = {
-      isInitialized: true,
-      initialize() {
-        this.isInitialized = true;
-        return Promise.resolve(this);
-      },
-      getRepository: jest.fn().mockReturnValue(repo),
-    };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
-
-    const v = new TestValidator();
-    const args = {
-      property: 'col',
-      constraints: [DummyEntity, 'col', undefined, true],
-    } as unknown as BaseValidatorArguments;
-
-    await expect(v.callValueExists(['a', 'b'], args)).resolves.toEqual([
-      false,
-      false,
-    ]);
-    expect(repo.createQueryBuilder).toHaveBeenCalledWith('entityOrTableName');
-  });
-
-  test('valueExists with each=true throws ValidationConfigurationError when value is not an array', async () => {
-    const repo: { createQueryBuilder: jest.Mock } = {
-      createQueryBuilder: jest.fn(),
-    };
-    type MockDS = {
-      isInitialized: boolean;
-      initialize: () => Promise<MockDS>;
-      getRepository: () => unknown;
-    };
-    const mockDataSource: MockDS = {
-      isInitialized: true,
-      initialize() {
-        this.isInitialized = true;
-        return Promise.resolve(this);
-      },
-      getRepository: jest.fn().mockReturnValue(repo),
-    };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
-
-    const v = new TestValidator();
-    const args = {
-      property: 'col',
-      constraints: [DummyEntity, 'col', undefined, true],
-    } as unknown as BaseValidatorArguments;
-
-    await expect(v.callValueExists('not-an-array', args)).rejects.toThrow(
-      ValidationConfigurationError,
-    );
-    await expect(v.callValueExists(123, args)).rejects.toThrow(
-      ValidationConfigurationError,
-    );
-    await expect(v.callValueExists({ foo: 'bar' }, args)).rejects.toThrow(
-      ValidationConfigurationError,
-    );
+    getRawOneMock.mockResolvedValue(undefined);
+    await expect(v.callValueExists(123, args)).resolves.toBe(false);
   });
 });

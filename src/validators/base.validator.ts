@@ -54,15 +54,11 @@ export abstract class BaseValidator {
   /**
    * Executes a database query to check for value existence.
    *
-   * Returns a tuple: [anyExists, allExists]
-   * - anyExists: true if at least one of the provided values exists
-   * - allExists: true if all of the provided values exist
-   *
-   * For single values both flags are identical.
+   * Returns true if the value exists.
    *
    * @param value - The value to query
    * @param validatorArguments - Validator arguments
-   * @returns Promise resolving to [anyExists, allExists]
+   * @returns Promise resolving to true if value exists, false otherwise
    * @throws {ValidationQueryError} if database query fails
    *
    * @protected
@@ -70,8 +66,8 @@ export abstract class BaseValidator {
   protected async valueExists(
     value: unknown,
     validatorArguments: BaseValidatorArguments,
-  ): Promise<[boolean, boolean]> {
-    const [entityOrTableName, columnName, dataSourceName, each] =
+  ): Promise<boolean> {
+    const [entityOrTableName, columnName, dataSourceName] =
       validatorArguments.constraints;
 
     try {
@@ -91,58 +87,17 @@ export abstract class BaseValidator {
           ? dataSource.getRepository(entityOrTableName)
           : dataSource.getRepository(entityOrTableName ?? '');
 
-      const queryValue: unknown = value;
-
-      // Array-value path
-      if (each && each === true) {
-        if (Array.isArray(queryValue)) {
-          const values = queryValue as unknown[];
-          if (values.length === 0) {
-            return [false, false];
-          }
-
-          const uniqueValues = Array.from(new Set(values));
-
-          const countResult = await repository
-            .createQueryBuilder('entityOrTableName')
-            .select(`COUNT(DISTINCT entityOrTableName.${columnName})`, 'cnt')
-            .where(`entityOrTableName.${columnName} IN (:...values)`, {
-              values: uniqueValues,
-            })
-            .getRawOne<{ cnt: string | number }>();
-
-          const found =
-            (countResult &&
-              ('cnt' in countResult ? Number(countResult.cnt) : 0)) ??
-            0;
-
-          const anyExists = found > 0;
-          const allExists = found === uniqueValues.length;
-
-          return [anyExists, allExists];
-        } else {
-          throw new ValidationConfigurationError(
-            `Expected an array value when 'each' is true. Received: ${typeof queryValue}`,
-            {
-              property: validatorArguments.property,
-              constraints: validatorArguments.constraints,
-            },
-          );
-        }
-      }
-
-      // Single-value path
       const result: { '1': number } | null | undefined = await repository
         .createQueryBuilder('entityOrTableName')
         .select('1')
         .where(`entityOrTableName.${columnName} = :value`, {
-          value: queryValue,
+          value: value,
         })
         .take(1)
         .getRawOne<{ '1': number }>();
 
       const exists = result !== null && result !== undefined;
-      return [exists, exists];
+      return exists;
     } catch (error) {
       if (
         error instanceof ValidationConfigurationError ||

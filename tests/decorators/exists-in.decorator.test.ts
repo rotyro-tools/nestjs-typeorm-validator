@@ -40,7 +40,7 @@ describe('ExistsIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'authorId',
-        constraints: [Dummy, 'id', undefined, undefined],
+        constraints: [Dummy, 'id', undefined],
         validator: expect.any(
           Function,
         ) as unknown as new () => ValidatorConstraintInterface,
@@ -62,7 +62,7 @@ describe('ExistsIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'authorId',
-        constraints: ['user', 'id', undefined, undefined],
+        constraints: ['user', 'id', undefined],
         validator: expect.any(
           Function,
         ) as unknown as new () => ValidatorConstraintInterface,
@@ -85,7 +85,7 @@ describe('ExistsIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'authorId',
-        constraints: [Dummy, 'id', 'secondary', undefined],
+        constraints: [Dummy, 'id', 'secondary'],
         validator: expect.any(
           Function,
         ) as unknown as new () => ValidatorConstraintInterface,
@@ -111,7 +111,7 @@ describe('ExistsIn test suite', () => {
         target: TestDto,
         propertyName: 'authorId',
         options,
-        constraints: [Dummy, 'id', undefined, undefined],
+        constraints: [Dummy, 'id', undefined],
         validator: expect.any(
           Function,
         ) as unknown as new () => ValidatorConstraintInterface,

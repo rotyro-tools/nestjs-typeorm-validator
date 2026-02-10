@@ -41,16 +41,9 @@ export class ExistsInValidator
 
     this.validateConstraints(validatorArguments, 'ExistsIn');
 
-    const [anyExists, allExists] = await this.valueExists(
-      value,
-      validatorArguments,
-    );
+    const exists = await this.valueExists(value, validatorArguments);
 
-    const each = validatorArguments.constraints[3];
-    if (each && each === true) {
-      return allExists;
-    }
-    return anyExists;
+    return exists;
   }
   /**
    * Generates the default error message when validation fails.

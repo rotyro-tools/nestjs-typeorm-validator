@@ -168,17 +168,17 @@ describe('UniqueInValidator test suite', () => {
     );
   });
 
-  test('defaultMessage with each=true formats correctly', () => {
+  test('defaultMessage with each=true formats message for array validation', () => {
     const validator = new UniqueInValidator();
     const args: BaseValidatorArguments = {
-      constraints: ['users', 'email', undefined, true],
-      property: 'email',
-      value: ['a', 'b'],
-      targetName: 'users',
+      constraints: [DummyEntity, 'email', undefined, true],
+      property: 'emails',
+      value: ['a@b.com', 'c@d.com'],
+      targetName: 'DummyEntity',
       object: {},
     };
-    const msg = validator.defaultMessage(args);
-    expect(msg).toContain('are not all unique in users.email');
-    expect(msg).toContain('email with values [a,b]');
+    const message = validator.defaultMessage(args);
+    expect(message).toContain('are not all unique');
+    expect(message).toContain('DummyEntity.email');
   });
 });

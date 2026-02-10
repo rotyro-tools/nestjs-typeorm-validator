@@ -86,7 +86,7 @@ describe('ExistsInValidator test suite', () => {
       targetName: 'name',
       object: {},
       property: 'name',
-      constraints: [DummyEntity, 'name', undefined, false],
+      constraints: [DummyEntity, 'name', undefined],
     };
 
     await expect(validator.validate('match', args)).resolves.toBe(true);
@@ -108,7 +108,7 @@ describe('ExistsInValidator test suite', () => {
       targetName: 'name',
       object: {},
       property: 'name',
-      constraints: [DummyEntity, 'name', undefined, false],
+      constraints: [DummyEntity, 'name', undefined],
     };
 
     await expect(validator.validate('nope', args)).resolves.toBe(false);
@@ -131,7 +131,7 @@ describe('ExistsInValidator test suite', () => {
       targetName: 'id',
       object: {},
       property: 'id',
-      constraints: [DummyEntity, 'id', undefined, false],
+      constraints: [DummyEntity, 'id', undefined],
     };
 
     await expect(validator.validate(42, args)).resolves.toBe(true);
@@ -153,7 +153,7 @@ describe('ExistsInValidator test suite', () => {
       targetName: 'col',
       object: {},
       property: 'col',
-      constraints: ['my_table', 'col', 'customDS', false],
+      constraints: ['my_table', 'col', 'customDS'],
     };
 
     const ds = { ...mockDataSource } as Parameters<
@@ -181,7 +181,6 @@ describe('ExistsInValidator test suite', () => {
         undefined,
         undefined,
         undefined,
-        false,
       ] as unknown as BaseValidatorArguments['constraints'],
     };
     await expect(validator.validate('x', args)).rejects.toThrow(
@@ -200,7 +199,7 @@ describe('ExistsInValidator test suite', () => {
       targetName: 'name',
       object: {},
       property: 'name',
-      constraints: [DummyEntity, 'name', undefined, false],
+      constraints: [DummyEntity, 'name', undefined],
     };
 
     await expect(validator.validate('x', args)).rejects.toThrow(
@@ -215,75 +214,11 @@ describe('ExistsInValidator test suite', () => {
       targetName: 'col',
       object: {},
       property: 'col',
-      constraints: ['my_table', 'col', undefined, false],
+      constraints: ['my_table', 'col', undefined],
     };
     expect(validator.defaultMessage(args)).toContain(
       'does not exist in my_table.col',
     );
-  });
-
-  test('defaultMessage with each=true formats correctly', () => {
-    const validator = new ExistsInValidator();
-    const args: BaseValidatorArguments = {
-      value: ['a', 'b'],
-      targetName: 'col',
-      object: {},
-      property: 'col',
-      constraints: ['my_table', 'col', undefined, true],
-    };
-    const msg = validator.defaultMessage(args);
-    expect(msg).toContain('do not all exist in my_table.col');
-    expect(msg).toContain('col with values [a,b]');
-  });
-
-  test('returns true when each=true and all values exist', async () => {
-    const validator = new ExistsInValidator();
-
-    const spy = jest
-      .spyOn(
-        ExistsInValidator.prototype as unknown as {
-          valueExists: (...args: unknown[]) => Promise<unknown>;
-        },
-        'valueExists',
-      )
-      .mockResolvedValue([true, true] as unknown as Promise<unknown>);
-
-    const args: BaseValidatorArguments = {
-      value: ['a', 'b'],
-      targetName: 'col',
-      object: {},
-      property: 'col',
-      constraints: ['my_table', 'col', undefined, true],
-    };
-
-    await expect(validator.validate(['a', 'b'], args)).resolves.toBe(true);
-
-    spy.mockRestore();
-  });
-
-  test('returns false when each=true and not all values exist', async () => {
-    const validator = new ExistsInValidator();
-
-    const spy = jest
-      .spyOn(
-        ExistsInValidator.prototype as unknown as {
-          valueExists: (...args: unknown[]) => Promise<unknown>;
-        },
-        'valueExists',
-      )
-      .mockResolvedValue([true, false] as unknown as Promise<unknown>);
-
-    const args: BaseValidatorArguments = {
-      value: ['x', 'y'],
-      targetName: 'col',
-      object: {},
-      property: 'col',
-      constraints: ['my_table', 'col', undefined, true],
-    };
-
-    await expect(validator.validate(['x', 'y'], args)).resolves.toBe(false);
-
-    spy.mockRestore();
   });
 
   test('returns false for null/undefined values', async () => {
@@ -294,7 +229,7 @@ describe('ExistsInValidator test suite', () => {
       targetName: 'id',
       object: {},
       property: 'id',
-      constraints: [DummyEntity, 'id', undefined, false],
+      constraints: [DummyEntity, 'id', undefined],
     };
 
     await expect(validator.validate(null, args)).resolves.toBe(false);
@@ -304,7 +239,7 @@ describe('ExistsInValidator test suite', () => {
       targetName: 'id',
       object: {},
       property: 'id',
-      constraints: [DummyEntity, 'id', undefined, false],
+      constraints: [DummyEntity, 'id', undefined],
     };
 
     await expect(validator.validate(undefined, argsUndef)).resolves.toBe(false);
@@ -321,9 +256,22 @@ describe('ExistsInValidator test suite', () => {
         {} as unknown as BaseValidatorArguments['constraints'][0],
         'col',
         undefined,
-        false,
       ],
     };
     expect(validator.defaultMessage(args)).toContain('entity.col');
+  });
+
+  test('defaultMessage with each=true formats message for array validation', () => {
+    const validator = new ExistsInValidator();
+    const args: BaseValidatorArguments = {
+      value: [1, 2, 3],
+      targetName: 'id',
+      object: {},
+      property: 'ids',
+      constraints: [DummyEntity, 'id', undefined, true],
+    };
+    const message = validator.defaultMessage(args);
+    expect(message).toContain('do not all exist');
+    expect(message).toContain('DummyEntity.id');
   });
 });

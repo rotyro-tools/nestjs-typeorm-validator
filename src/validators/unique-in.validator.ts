@@ -41,8 +41,8 @@ export class UniqueInValidator
 
     this.validateConstraints(validatorArguments, 'UniqueIn');
 
-    const [anyExists] = await this.valueExists(value, validatorArguments);
-    return !anyExists;
+    const exists = await this.valueExists(value, validatorArguments);
+    return !exists;
   }
 
   /**
