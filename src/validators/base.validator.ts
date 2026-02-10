@@ -91,40 +91,44 @@ export abstract class BaseValidator {
           ? dataSource.getRepository(entityOrTableName)
           : dataSource.getRepository(entityOrTableName ?? '');
 
-      let queryValue: unknown = value;
-      if (each && each === true) {
-        queryValue = (queryValue as string)
-          .split(',')
-          .map((v) => v.trim())
-          .filter((v) => v !== '');
-      }
+      const queryValue: unknown = value;
 
       // Array-value path
-      if (Array.isArray(queryValue)) {
-        const values = queryValue as unknown[];
-        if (values.length === 0) {
-          return [false, false];
+      if (each && each === true) {
+        if (Array.isArray(queryValue)) {
+          const values = queryValue as unknown[];
+          if (values.length === 0) {
+            return [false, false];
+          }
+
+          const uniqueValues = Array.from(new Set(values));
+
+          const countResult = await repository
+            .createQueryBuilder('entityOrTableName')
+            .select(`COUNT(DISTINCT entityOrTableName.${columnName})`, 'cnt')
+            .where(`entityOrTableName.${columnName} IN (:...values)`, {
+              values: uniqueValues,
+            })
+            .getRawOne<{ cnt: string | number }>();
+
+          const found =
+            (countResult &&
+              ('cnt' in countResult ? Number(countResult.cnt) : 0)) ??
+            0;
+
+          const anyExists = found > 0;
+          const allExists = found === uniqueValues.length;
+
+          return [anyExists, allExists];
+        } else {
+          throw new ValidationConfigurationError(
+            `Expected an array value when 'each' is true. Received: ${typeof queryValue}`,
+            {
+              property: validatorArguments.property,
+              constraints: validatorArguments.constraints,
+            },
+          );
         }
-
-        const uniqueValues = Array.from(new Set(values));
-
-        const countResult = await repository
-          .createQueryBuilder('entityOrTableName')
-          .select(`COUNT(DISTINCT entityOrTableName.${columnName})`, 'cnt')
-          .where(`entityOrTableName.${columnName} IN (:...values)`, {
-            values: uniqueValues,
-          })
-          .getRawOne<{ cnt: string | number }>();
-
-        const found =
-          (countResult &&
-            ('cnt' in countResult ? Number(countResult.cnt) : 0)) ??
-          0;
-
-        const anyExists = found > 0;
-        const allExists = found === uniqueValues.length;
-
-        return [anyExists, allExists];
       }
 
       // Single-value path

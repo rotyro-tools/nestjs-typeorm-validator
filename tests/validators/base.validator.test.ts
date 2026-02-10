@@ -201,7 +201,7 @@ describe('BaseValidator test suite', () => {
       constraints: [DummyEntity, 'col', undefined, true],
     } as unknown as BaseValidatorArguments;
 
-    await expect(v.callValueExists('a,b,a', args)).resolves.toEqual([
+    await expect(v.callValueExists(['a', 'b', 'a'], args)).resolves.toEqual([
       true,
       true,
     ]);
@@ -247,7 +247,7 @@ describe('BaseValidator test suite', () => {
       constraints: [DummyEntity, 'col', undefined, true],
     } as unknown as BaseValidatorArguments;
 
-    await expect(v.callValueExists('a,b,a', args)).resolves.toEqual([
+    await expect(v.callValueExists(['a', 'b', 'a'], args)).resolves.toEqual([
       true,
       false,
     ]);
@@ -292,8 +292,7 @@ describe('BaseValidator test suite', () => {
       constraints: [DummyEntity, 'col', undefined, true],
     } as unknown as BaseValidatorArguments;
 
-    await expect(v.callValueExists('', args)).resolves.toEqual([false, false]);
-    await expect(v.callValueExists(',', args)).resolves.toEqual([false, false]);
+    await expect(v.callValueExists([], args)).resolves.toEqual([false, false]);
   });
 
   test('valueExists throws ValidationConfigurationError when repository reports missing metadata', async () => {
@@ -618,7 +617,7 @@ describe('BaseValidator test suite', () => {
       constraints: [DummyEntity, 'col', undefined, true],
     } as unknown as BaseValidatorArguments;
 
-    await expect(v.callValueExists('a,b', args)).resolves.toEqual([
+    await expect(v.callValueExists(['a', 'b'], args)).resolves.toEqual([
       false,
       false,
     ]);
@@ -663,10 +662,48 @@ describe('BaseValidator test suite', () => {
       constraints: [DummyEntity, 'col', undefined, true],
     } as unknown as BaseValidatorArguments;
 
-    await expect(v.callValueExists('a,b', args)).resolves.toEqual([
+    await expect(v.callValueExists(['a', 'b'], args)).resolves.toEqual([
       false,
       false,
     ]);
     expect(repo.createQueryBuilder).toHaveBeenCalledWith('entityOrTableName');
+  });
+
+  test('valueExists with each=true throws ValidationConfigurationError when value is not an array', async () => {
+    const repo: { createQueryBuilder: jest.Mock } = {
+      createQueryBuilder: jest.fn(),
+    };
+    type MockDS = {
+      isInitialized: boolean;
+      initialize: () => Promise<MockDS>;
+      getRepository: () => unknown;
+    };
+    const mockDataSource: MockDS = {
+      isInitialized: true,
+      initialize() {
+        this.isInitialized = true;
+        return Promise.resolve(this);
+      },
+      getRepository: jest.fn().mockReturnValue(repo),
+    };
+    registerDataSourceForValidation(
+      mockDataSource as unknown as DataSourceLike,
+    );
+
+    const v = new TestValidator();
+    const args = {
+      property: 'col',
+      constraints: [DummyEntity, 'col', undefined, true],
+    } as unknown as BaseValidatorArguments;
+
+    await expect(v.callValueExists('not-an-array', args)).rejects.toThrow(
+      ValidationConfigurationError,
+    );
+    await expect(v.callValueExists(123, args)).rejects.toThrow(
+      ValidationConfigurationError,
+    );
+    await expect(v.callValueExists({ foo: 'bar' }, args)).rejects.toThrow(
+      ValidationConfigurationError,
+    );
   });
 });
