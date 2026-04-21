@@ -125,7 +125,7 @@ describe('UniqueInValidator test suite', () => {
     };
 
     const ds = {
-      ...(mockDataSource as unknown as DataSource),
+      ...mockDataSource,
     } as unknown as DataSource;
     registerDataSourceForValidation(ds, 'ds2');
 

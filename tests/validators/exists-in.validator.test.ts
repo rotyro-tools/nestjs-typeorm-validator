@@ -66,7 +66,7 @@ describe('ExistsInValidator test suite', () => {
         return Promise.resolve(this);
       },
       getRepository: jest.fn().mockReturnValue(repo),
-    } as Parameters<typeof registerDataSourceForValidation>[0];
+    };
 
     registerDataSourceForValidation(mockDataSource);
   });
@@ -156,9 +156,7 @@ describe('ExistsInValidator test suite', () => {
       constraints: ['my_table', 'col', 'customDS'],
     };
 
-    const ds = { ...mockDataSource } as Parameters<
-      typeof registerDataSourceForValidation
-    >[0];
+    const ds = { ...mockDataSource };
     registerDataSourceForValidation(ds, 'customDS');
 
     await expect(validator.validate('v', args)).resolves.toBe(true);

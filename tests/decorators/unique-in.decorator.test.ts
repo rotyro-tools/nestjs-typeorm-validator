@@ -1,7 +1,4 @@
-import {
-  type ValidatorConstraintInterface,
-  registerDecorator,
-} from 'class-validator';
+import { registerDecorator } from 'class-validator';
 
 import { UniqueIn } from '@/decorators';
 
@@ -41,9 +38,7 @@ describe('UniqueIn test suite', () => {
         target: TestDto,
         propertyName: 'email',
         constraints: [Dummy, 'email', undefined],
-        validator: expect.any(
-          Function,
-        ) as unknown as new () => ValidatorConstraintInterface,
+        validator: expect.any(Function) as unknown,
       }),
     );
   });
@@ -63,9 +58,7 @@ describe('UniqueIn test suite', () => {
         target: TestDto,
         propertyName: 'email',
         constraints: ['user', 'email', undefined],
-        validator: expect.any(
-          Function,
-        ) as unknown as new () => ValidatorConstraintInterface,
+        validator: expect.any(Function) as unknown,
       }),
     );
   });
@@ -86,9 +79,7 @@ describe('UniqueIn test suite', () => {
         target: TestDto,
         propertyName: 'email',
         constraints: [Dummy, 'email', 'secondary'],
-        validator: expect.any(
-          Function,
-        ) as unknown as new () => ValidatorConstraintInterface,
+        validator: expect.any(Function) as unknown,
       }),
     );
   });
@@ -112,9 +103,7 @@ describe('UniqueIn test suite', () => {
         propertyName: 'email',
         options,
         constraints: [Dummy, 'email', undefined],
-        validator: expect.any(
-          Function,
-        ) as unknown as new () => ValidatorConstraintInterface,
+        validator: expect.any(Function) as unknown,
       }),
     );
   });

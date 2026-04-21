@@ -1,7 +1,4 @@
-import {
-  type ValidatorConstraintInterface,
-  registerDecorator,
-} from 'class-validator';
+import { registerDecorator } from 'class-validator';
 
 import { ExistsIn } from '@/decorators';
 
@@ -41,9 +38,7 @@ describe('ExistsIn test suite', () => {
         target: TestDto,
         propertyName: 'authorId',
         constraints: [Dummy, 'id', undefined],
-        validator: expect.any(
-          Function,
-        ) as unknown as new () => ValidatorConstraintInterface,
+        validator: expect.any(Function) as unknown,
       }),
     );
   });
@@ -63,9 +58,7 @@ describe('ExistsIn test suite', () => {
         target: TestDto,
         propertyName: 'authorId',
         constraints: ['user', 'id', undefined],
-        validator: expect.any(
-          Function,
-        ) as unknown as new () => ValidatorConstraintInterface,
+        validator: expect.any(Function) as unknown,
       }),
     );
   });
@@ -86,9 +79,7 @@ describe('ExistsIn test suite', () => {
         target: TestDto,
         propertyName: 'authorId',
         constraints: [Dummy, 'id', 'secondary'],
-        validator: expect.any(
-          Function,
-        ) as unknown as new () => ValidatorConstraintInterface,
+        validator: expect.any(Function) as unknown,
       }),
     );
   });
@@ -112,9 +103,7 @@ describe('ExistsIn test suite', () => {
         propertyName: 'authorId',
         options,
         constraints: [Dummy, 'id', undefined],
-        validator: expect.any(
-          Function,
-        ) as unknown as new () => ValidatorConstraintInterface,
+        validator: expect.any(Function) as unknown,
       }),
     );
   });

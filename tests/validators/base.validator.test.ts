@@ -5,7 +5,7 @@ import {
   ValidationConfigurationError,
   ValidationQueryError,
 } from '@/errors';
-import type { BaseValidatorArguments, DataSourceLike } from '@/types';
+import type { BaseValidatorArguments } from '@/types';
 import { registerDataSourceForValidation } from '@/utils';
 import { BaseValidator } from '@/validators';
 
@@ -51,7 +51,7 @@ describe('BaseValidator test suite', () => {
 
   test('getEntityName falls back to "entity" when no name is present', () => {
     const v = new TestValidator();
-    expect(v.callGetEntityName({} as unknown)).toBe('entity');
+    expect(v.callGetEntityName({})).toBe('entity');
   });
 
   test('valueExists throws DataSourceNotRegisteredError when no data source registered', async () => {
@@ -97,9 +97,7 @@ describe('BaseValidator test suite', () => {
       getRepository: jest.fn().mockReturnValue(repo),
     };
 
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
+    registerDataSourceForValidation(mockDataSource);
 
     const v = new TestValidator();
     const args = {
@@ -147,10 +145,7 @@ describe('BaseValidator test suite', () => {
       getRepository: jest.fn().mockReturnValue(repo),
     };
 
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-      'namedDS',
-    );
+    registerDataSourceForValidation(mockDataSource, 'namedDS');
 
     const v = new TestValidator();
     const args = {
@@ -181,9 +176,7 @@ describe('BaseValidator test suite', () => {
       },
       getRepository: jest.fn().mockReturnValue(repo),
     };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
+    registerDataSourceForValidation(mockDataSource);
 
     const v = new TestValidator();
     const args = {
@@ -225,9 +218,7 @@ describe('BaseValidator test suite', () => {
       },
       getRepository: jest.fn().mockReturnValue(repo),
     };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
+    registerDataSourceForValidation(mockDataSource);
 
     const v = new TestValidator();
     const args = {
@@ -259,9 +250,7 @@ describe('BaseValidator test suite', () => {
       },
       getRepository: jest.fn().mockReturnValue(repo),
     };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
+    registerDataSourceForValidation(mockDataSource);
 
     const v = new TestValidator();
     const args = {
@@ -294,9 +283,7 @@ describe('BaseValidator test suite', () => {
       },
       getRepository: jest.fn().mockReturnValue(repo),
     };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
+    registerDataSourceForValidation(mockDataSource);
 
     const v = new TestValidator();
     const args = {
@@ -349,9 +336,7 @@ describe('BaseValidator test suite', () => {
       },
       getRepository: jest.fn().mockReturnValue(repo),
     };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
+    registerDataSourceForValidation(mockDataSource);
 
     const v = new TestValidator();
     const args = {
@@ -391,9 +376,7 @@ describe('BaseValidator test suite', () => {
       },
       getRepository: jest.fn().mockReturnValue(repo),
     };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
+    registerDataSourceForValidation(mockDataSource);
 
     const v = new TestValidator();
     const args = {
@@ -424,9 +407,7 @@ describe('BaseValidator test suite', () => {
       },
       getRepository: jest.fn().mockReturnValue(repo),
     };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
+    registerDataSourceForValidation(mockDataSource);
 
     const v = new TestValidator();
     const args = {
@@ -474,9 +455,7 @@ describe('BaseValidator test suite', () => {
       },
       getRepository: jest.fn().mockReturnValue(repo),
     };
-    registerDataSourceForValidation(
-      mockDataSource as unknown as DataSourceLike,
-    );
+    registerDataSourceForValidation(mockDataSource);
 
     const v = new TestValidator();
     const args = {
