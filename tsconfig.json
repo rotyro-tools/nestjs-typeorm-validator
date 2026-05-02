@@ -1,15 +1,17 @@
 {
   "compilerOptions": {
     "target": "ES2019",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "rootDir": ".",
-    "baseUrl": "./",
     "paths": {
       "@/*": ["./src/*"]
     },
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "moduleResolution": "Node"
+    "ignoreDeprecations": "6.0",
+    "types": ["node", "jest"]
   },
   "include": ["src", "tests"],
   "exclude": ["dist", "node_modules"]

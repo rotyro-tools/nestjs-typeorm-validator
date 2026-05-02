@@ -25,6 +25,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -96,9 +97,10 @@
     "commitizen": "^4.3.1",
     "conventional-changelog-conventionalcommits": "^9.1.0",
     "cz-conventional-changelog": "^3.3.0",
-    "eslint": "^9.39.1",
+    "eslint": "^10.3.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
+    "globals": "^17.6.0",
     "husky": "^9.1.7",
     "install": "^0.13.0",
     "jest": "^30.2.0",
@@ -110,7 +112,7 @@
     "ts-node": "^10.9.2",
     "tsup": "^8.5.0",
     "typeorm": "^0.3.27",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   },
   "overrides": {
     "picomatch": "4.0.3"

@@ -1,21 +1,11 @@
-import { FlatCompat } from '@eslint/eslintrc';
-import js from '@eslint/js';
+import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
-import { defineConfig } from 'eslint/config';
+import type { Linter } from 'eslint';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import prettierPlugin from 'eslint-plugin-prettier';
 import globals from 'globals';
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-  recommendedConfig: js.configs.recommended,
-  allConfig: js.configs.all,
-});
-
-export default defineConfig([
+export default [
   {
     ignores: [
       '**/node_modules/**',
@@ -23,13 +13,17 @@ export default defineConfig([
       '**/build/**',
       '**/coverage/**',
     ],
+  },
+
+  ...(tsPlugin.configs['flat/recommended-type-checked'] as Linter.Config[]),
+
+  {
     languageOptions: {
       parser: tsParser,
       sourceType: 'module',
 
       parserOptions: {
         project: 'tsconfig.json',
-        tsconfigRootDir: __dirname,
       },
 
       globals: {
@@ -38,7 +32,16 @@ export default defineConfig([
       },
     },
 
+    plugins: {
+      prettier: prettierPlugin,
+    },
+
     rules: {
+      ...eslintConfigPrettier.rules,
+      'prettier/prettier': 'error',
+      'arrow-body-style': 'off',
+      'prefer-arrow-callback': 'off',
+
       '@typescript-eslint/interface-name-prefix': 'off',
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -68,10 +71,4 @@ export default defineConfig([
       ],
     },
   },
-
-  ...compat.extends(
-    'plugin:@typescript-eslint/recommended',
-    'plugin:@typescript-eslint/recommended-requiring-type-checking',
-    'plugin:prettier/recommended',
-  ),
-]);
+] satisfies Linter.Config[];

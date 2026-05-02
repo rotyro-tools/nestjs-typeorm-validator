@@ -1,7 +1,7 @@
 import type { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 
 import { ValidationQueryError } from '@/errors';
-import { BaseValidatorArguments } from '@/types';
+import type { BaseValidatorArguments } from '@/types';
 import { registerDataSourceForValidation } from '@/utils';
 import { UniqueInValidator } from '@/validators';
 
