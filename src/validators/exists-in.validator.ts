@@ -12,6 +12,8 @@ import { BaseValidator } from '@/validators';
  * @description
  * This validator performs an asynchronous database query to verify the existence
  * of a value in the specified column. Used internally by the ExistsIn decorator.
+ * With `each: true`, the values of an array, Set or Map are checked together in batched queries;
+ * the validation fails if any value is `null`/`undefined` or does not exist.
  *
  * @public
  */
@@ -41,9 +43,21 @@ export class ExistsInValidator
 
     this.validateConstraints(validatorArguments, 'ExistsIn');
 
-    const exists = await this.valueExists(value, validatorArguments);
+    const values = this.getEachValues(value, validatorArguments);
 
-    return exists;
+    if (values === undefined) {
+      return this.valueExists(value, validatorArguments);
+    }
+
+    if (values.length === 0) {
+      return true;
+    }
+
+    if (values.some((item) => item === null || item === undefined)) {
+      return false;
+    }
+
+    return this.allValuesExist(values, validatorArguments);
   }
   /**
    * Generates the default error message when validation fails.

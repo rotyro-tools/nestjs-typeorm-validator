@@ -11,7 +11,8 @@ import { ExistsInValidator } from '@/validators';
  * provided value **exists** in the specified table column.
  * It supports both:
  * - **Entity classes** (e.g., `User`, `Post`)
- * - **Table name strings** (e.g., `'user'`, `'post'`)
+ * - **Table name strings** (e.g., `'user'`, `'post'`). A string must match the name or table name of an entity
+ *   registered in the DataSource; it is not raw table access.
  *
  *
  * You can also specify which registered data source to use by passing the dataSourceName
@@ -19,9 +20,11 @@ import { ExistsInValidator } from '@/validators';
  * If you pass `null` or `undefined` (or leave the parameter omitted), the decorator will use the
  * 'default' data source — the same default used when registering a data source without specifying a name.
  *
- * The `validationOptions` parameter accepts the same ValidationOptions used by `class-validator`.
- * Therefore options such as `each: true` (to validate array elements) and `message` (to provide a custom error message)
- * behave exactly as they do in `class-validator`.
+ * The `validationOptions` parameter accepts the same ValidationOptions used by `class-validator`
+ * (for example `message` for a custom error message).
+ * With `each: true`, the values of an array, Set or Map are checked together in batched `IN` queries
+ * (one query per 500 distinct values) instead of one query per value. The validation fails if any value
+ * is `null`/`undefined` or does not exist. Soft-deleted rows are treated as non-existent.
  *
  * @example
  * **Using with an Entity class:**
@@ -75,19 +78,21 @@ export function ExistsIn<T extends EntityTarget<unknown> | string>(
     : T extends EntityTarget<infer E>
       ? keyof E & string
       : string,
-  dataSourceName?: string,
+  dataSourceName?: string | null,
   validationOptions?: ValidationOptions,
 ): PropertyDecorator {
+  const { each, ...options } = validationOptions ?? {};
+
   return function (object: object, propertyName: string | symbol): void {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName as string,
-      options: validationOptions,
+      options,
       constraints: [
         entityOrTableName,
         columnName,
         dataSourceName,
-        validationOptions?.each,
+        each === true,
       ] as const,
       validator: ExistsInValidator,
     });

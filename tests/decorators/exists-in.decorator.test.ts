@@ -37,7 +37,7 @@ describe('ExistsIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'authorId',
-        constraints: [Dummy, 'id', undefined],
+        constraints: [Dummy, 'id', undefined, false],
         validator: expect.any(Function) as unknown,
       }),
     );
@@ -57,7 +57,7 @@ describe('ExistsIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'authorId',
-        constraints: ['user', 'id', undefined],
+        constraints: ['user', 'id', undefined, false],
         validator: expect.any(Function) as unknown,
       }),
     );
@@ -78,7 +78,7 @@ describe('ExistsIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'authorId',
-        constraints: [Dummy, 'id', 'secondary'],
+        constraints: [Dummy, 'id', 'secondary', false],
         validator: expect.any(Function) as unknown,
       }),
     );
@@ -102,9 +102,30 @@ describe('ExistsIn test suite', () => {
         target: TestDto,
         propertyName: 'authorId',
         options,
-        constraints: [Dummy, 'id', undefined],
+        constraints: [Dummy, 'id', undefined, false],
         validator: expect.any(Function) as unknown,
       }),
     );
+  });
+
+  test('should pass each as a constraint instead of a class-validator option', () => {
+    class TestDto {
+      authorIds!: number[];
+    }
+    const dec = (ExistsIn as (...args: unknown[]) => PropertyDecorator)(
+      Dummy,
+      'id',
+      null,
+      { each: true, message: 'Missing authors' },
+    );
+    dec(TestDto.prototype, 'authorIds');
+
+    expect(registerDecorator).toHaveBeenCalledWith({
+      target: TestDto,
+      propertyName: 'authorIds',
+      options: { message: 'Missing authors' },
+      constraints: [Dummy, 'id', null, true],
+      validator: expect.any(Function) as unknown,
+    });
   });
 });

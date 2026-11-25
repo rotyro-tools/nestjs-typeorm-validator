@@ -1,6 +1,7 @@
-import { type ValidationOptions, registerDecorator } from 'class-validator';
+import { registerDecorator } from 'class-validator';
 import type { EntityTarget } from 'typeorm';
 
+import type { UniqueInValidationOptions } from '@/types';
 import { UniqueInValidator } from '@/validators';
 
 /**
@@ -11,7 +12,8 @@ import { UniqueInValidator } from '@/validators';
  * value does **not already exist** in the specified table column.
  * It supports both:
  * - **Entity class references** (e.g., `User`, `Post`)
- * - **Direct table name strings** (e.g., `'user'`, `'post'`)
+ * - **Direct table name strings** (e.g., `'user'`, `'post'`). A string must match the name or table name of an entity
+ *   registered in the DataSource; it is not raw table access.
  *
  *
  * You can also specify which registered data source to use by passing the dataSourceName
@@ -19,9 +21,13 @@ import { UniqueInValidator } from '@/validators';
  * If you pass `null` or `undefined` (or leave the parameter omitted), the decorator will use the
  * 'default' data source — the same default used when registering a data source without specifying a name.
  *
- * The `validationOptions` parameter accepts the same ValidationOptions used by `class-validator`.
- * Therefore options such as `each: true` (to validate array elements) and `message` (to provide a custom error message)
- * behave exactly as they do in `class-validator`.
+ * The `validationOptions` parameter accepts the same ValidationOptions used by `class-validator`
+ * (for example `message` for a custom error message), plus `includeSoftDeleted`.
+ * Soft-deleted rows count as taken values by default, like a database unique index does.
+ * Pass `includeSoftDeleted: false` when soft-deleted values may be reused.
+ * With `each: true`, the values of an array, Set or Map are checked together in batched `IN` queries
+ * (one query per 500 distinct values). `null`/`undefined` values are ignored, and exact duplicates
+ * inside the collection fail the validation.
  *
  * @example
  * **Using with an Entity class:**
@@ -63,7 +69,8 @@ import { UniqueInValidator } from '@/validators';
  * @param columnName - The column name to validate uniqueness in.
  * @param dataSourceName - Optional name of the data source to use for validation (must match a registered name).
  *                         Passing `null`/`undefined` (or omitting this argument) will use the 'default' data source.
- * @param validationOptions - Optional validation settings from `class-validator` (use `{ each: true }` for arrays and `message` for custom text).
+ * @param validationOptions - Optional validation settings from `class-validator` (use `{ each: true }` for arrays and `message` for custom text),
+ *                            plus `includeSoftDeleted` (defaults to `true`).
  * @returns A property decorator function used by `class-validator`.
  *
  * @public
@@ -75,19 +82,22 @@ export function UniqueIn<T extends EntityTarget<unknown> | string>(
     : T extends EntityTarget<infer E>
       ? keyof E & string
       : string,
-  dataSourceName?: string,
-  validationOptions?: ValidationOptions,
+  dataSourceName?: string | null,
+  validationOptions?: UniqueInValidationOptions,
 ): PropertyDecorator {
+  const { each, includeSoftDeleted, ...options } = validationOptions ?? {};
+
   return function (object: object, propertyName: string | symbol): void {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName as string,
-      options: validationOptions,
+      options,
       constraints: [
         entityOrTableName,
         columnName,
         dataSourceName,
-        validationOptions?.each,
+        each === true,
+        { withDeleted: includeSoftDeleted !== false },
       ] as const,
       validator: UniqueInValidator,
     });

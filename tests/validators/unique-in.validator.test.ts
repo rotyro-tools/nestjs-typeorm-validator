@@ -2,7 +2,10 @@ import type { DataSource, Repository, SelectQueryBuilder } from 'typeorm';
 
 import { ValidationQueryError } from '@/errors';
 import type { BaseValidatorArguments } from '@/types';
-import { registerDataSourceForValidation } from '@/utils';
+import {
+  clearDataSourcesForValidation,
+  registerDataSourceForValidation,
+} from '@/utils';
 import { UniqueInValidator } from '@/validators';
 
 jest.mock('typeorm', () => ({
@@ -29,6 +32,7 @@ describe('UniqueInValidator test suite', () => {
       select: jest.fn().mockReturnThis(),
       where: jest.fn().mockReturnThis(),
       take: jest.fn().mockReturnThis(),
+      withDeleted: jest.fn().mockReturnThis(),
       getRawOne: getRawOneMock,
     } as unknown as SelectQueryBuilder<DummyEntity>;
 
@@ -180,5 +184,125 @@ describe('UniqueInValidator test suite', () => {
     const message = validator.defaultMessage(args);
     expect(message).toContain('are not all unique');
     expect(message).toContain('DummyEntity.email');
+  });
+});
+
+describe('UniqueInValidator soft delete and each test suite', () => {
+  class DummyEntity {
+    email?: string;
+  }
+
+  type Builder = {
+    select: jest.Mock;
+    where: jest.Mock;
+    take: jest.Mock;
+    withDeleted: jest.Mock;
+    getRawOne: jest.Mock;
+  };
+
+  let builder: Builder;
+  const validator = new UniqueInValidator();
+
+  function makeArgs(
+    constraints: unknown[],
+    value: unknown,
+  ): BaseValidatorArguments {
+    return {
+      constraints,
+      property: 'emails',
+      value,
+      targetName: 'DummyEntity',
+      object: {},
+    } as unknown as BaseValidatorArguments;
+  }
+
+  beforeEach(() => {
+    clearDataSourcesForValidation();
+    builder = {
+      select: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      withDeleted: jest.fn().mockReturnThis(),
+      getRawOne: jest.fn().mockResolvedValue(undefined),
+    };
+    registerDataSourceForValidation({
+      isInitialized: true,
+      initialize: jest.fn(),
+      getRepository: jest.fn().mockReturnValue({
+        createQueryBuilder: jest.fn().mockReturnValue(builder),
+      }),
+    });
+  });
+
+  test('counts soft-deleted rows by default', async () => {
+    const args = makeArgs([DummyEntity, 'email'], 'a@b.com');
+    await expect(validator.validate('a@b.com', args)).resolves.toBe(true);
+    expect(builder.withDeleted).toHaveBeenCalledTimes(1);
+  });
+
+  test('ignores soft-deleted rows when includeSoftDeleted is false', async () => {
+    const args = makeArgs(
+      [DummyEntity, 'email', undefined, false, { withDeleted: false }],
+      'a@b.com',
+    );
+    await expect(validator.validate('a@b.com', args)).resolves.toBe(true);
+    expect(builder.withDeleted).not.toHaveBeenCalled();
+  });
+
+  test('each: checks all values in one IN query', async () => {
+    const value = ['a@b.com', 'c@d.com'];
+    const args = makeArgs(
+      [DummyEntity, 'email', undefined, true, { withDeleted: true }],
+      value,
+    );
+    await expect(validator.validate(value, args)).resolves.toBe(true);
+    expect(builder.getRawOne).toHaveBeenCalledTimes(1);
+    expect(builder.where).toHaveBeenCalledWith(
+      'entityOrTableName.email IN (:...values)',
+      { values: value },
+    );
+  });
+
+  test('each: fails when one value is already taken', async () => {
+    builder.getRawOne.mockResolvedValue({ '1': 1 });
+    const value = ['a@b.com', 'taken@d.com'];
+    const args = makeArgs([DummyEntity, 'email', undefined, true], value);
+    await expect(validator.validate(value, args)).resolves.toBe(false);
+  });
+
+  test('each: fails on exact duplicates inside the collection without querying', async () => {
+    const value = ['a@b.com', 'a@b.com'];
+    const args = makeArgs([DummyEntity, 'email', undefined, true], value);
+    await expect(validator.validate(value, args)).resolves.toBe(false);
+    expect(builder.getRawOne).not.toHaveBeenCalled();
+  });
+
+  test('each: ignores null values and passes empty collections without querying', async () => {
+    const onlyNulls = [null, undefined];
+    await expect(
+      validator.validate(
+        onlyNulls,
+        makeArgs([DummyEntity, 'email', undefined, true], onlyNulls),
+      ),
+    ).resolves.toBe(true);
+    await expect(
+      validator.validate(
+        [],
+        makeArgs([DummyEntity, 'email', undefined, true], []),
+      ),
+    ).resolves.toBe(true);
+    expect(builder.getRawOne).not.toHaveBeenCalled();
+
+    const withNull = ['a@b.com', null];
+    await expect(
+      validator.validate(
+        withNull,
+        makeArgs([DummyEntity, 'email', undefined, true], withNull),
+      ),
+    ).resolves.toBe(true);
+    expect(builder.where).toHaveBeenCalledWith(
+      'entityOrTableName.email IN (:...values)',
+      { values: ['a@b.com'] },
+    );
   });
 });

@@ -37,7 +37,7 @@ describe('UniqueIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'email',
-        constraints: [Dummy, 'email', undefined],
+        constraints: [Dummy, 'email', undefined, false, { withDeleted: true }],
         validator: expect.any(Function) as unknown,
       }),
     );
@@ -57,7 +57,7 @@ describe('UniqueIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'email',
-        constraints: ['user', 'email', undefined],
+        constraints: ['user', 'email', undefined, false, { withDeleted: true }],
         validator: expect.any(Function) as unknown,
       }),
     );
@@ -78,7 +78,13 @@ describe('UniqueIn test suite', () => {
       expect.objectContaining({
         target: TestDto,
         propertyName: 'email',
-        constraints: [Dummy, 'email', 'secondary'],
+        constraints: [
+          Dummy,
+          'email',
+          'secondary',
+          false,
+          { withDeleted: true },
+        ],
         validator: expect.any(Function) as unknown,
       }),
     );
@@ -102,9 +108,30 @@ describe('UniqueIn test suite', () => {
         target: TestDto,
         propertyName: 'email',
         options,
-        constraints: [Dummy, 'email', undefined],
+        constraints: [Dummy, 'email', undefined, false, { withDeleted: true }],
         validator: expect.any(Function) as unknown,
       }),
     );
+  });
+
+  test('should pass each and includeSoftDeleted as constraints instead of class-validator options', () => {
+    class TestDto {
+      emails!: string[];
+    }
+    const dec = (UniqueIn as (...args: unknown[]) => PropertyDecorator)(
+      Dummy,
+      'email',
+      null,
+      { each: true, includeSoftDeleted: false, message: 'Taken' },
+    );
+    dec(TestDto.prototype, 'emails');
+
+    expect(registerDecorator).toHaveBeenCalledWith({
+      target: TestDto,
+      propertyName: 'emails',
+      options: { message: 'Taken' },
+      constraints: [Dummy, 'email', null, true, { withDeleted: false }],
+      validator: expect.any(Function) as unknown,
+    });
   });
 });

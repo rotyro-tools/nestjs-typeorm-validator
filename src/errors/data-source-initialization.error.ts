@@ -1,14 +1,14 @@
 import { ValidatorError } from '@/errors';
 
 /**
- * Error thrown when data source initialization fails.
+ * Error thrown when the automatic initialization of a data source fails.
  *
  * @public
  */
 export class DataSourceInitializationError extends ValidatorError {
   constructor(dataSourceName: string, cause?: Error) {
     super(
-      `DataSource "${dataSourceName}" is not initialized. Please ensure it's initialized before use.`,
+      `Failed to initialize DataSource "${dataSourceName}" for validation${cause ? `: ${cause.message}` : ''}`,
       cause,
     );
   }

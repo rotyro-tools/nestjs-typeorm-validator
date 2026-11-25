@@ -9,7 +9,8 @@ export class ValidationConfigurationError extends ValidatorError {
   constructor(
     message: string,
     public readonly context?: Record<string, unknown>,
+    cause?: Error,
   ) {
-    super(message);
+    super(message, cause);
   }
 }

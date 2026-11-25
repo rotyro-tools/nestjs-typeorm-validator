@@ -1,6 +1,9 @@
 import { ValidationConfigurationError, ValidationQueryError } from '@/errors';
 import type { BaseValidatorArguments } from '@/types';
-import { registerDataSourceForValidation } from '@/utils';
+import {
+  clearDataSourcesForValidation,
+  registerDataSourceForValidation,
+} from '@/utils';
 import { ExistsInValidator } from '@/validators';
 
 jest.mock('typeorm', () => ({
@@ -271,5 +274,91 @@ describe('ExistsInValidator test suite', () => {
     const message = validator.defaultMessage(args);
     expect(message).toContain('do not all exist');
     expect(message).toContain('DummyEntity.id');
+  });
+});
+
+describe('ExistsInValidator each test suite', () => {
+  class DummyEntity {
+    id?: number;
+  }
+
+  type Builder = {
+    select: jest.Mock;
+    distinct: jest.Mock;
+    where: jest.Mock;
+    take: jest.Mock;
+    getRawOne: jest.Mock;
+    getRawMany: jest.Mock;
+  };
+
+  let builder: Builder;
+  const validator = new ExistsInValidator();
+
+  function makeArgs(value: unknown): BaseValidatorArguments {
+    return {
+      value,
+      targetName: 'ids',
+      object: {},
+      property: 'ids',
+      constraints: [DummyEntity, 'id', undefined, true],
+    };
+  }
+
+  beforeEach(() => {
+    clearDataSourcesForValidation();
+    builder = {
+      select: jest.fn().mockReturnThis(),
+      distinct: jest.fn().mockReturnThis(),
+      where: jest.fn().mockReturnThis(),
+      take: jest.fn().mockReturnThis(),
+      getRawOne: jest.fn().mockResolvedValue(undefined),
+      getRawMany: jest.fn().mockResolvedValue([]),
+    };
+    registerDataSourceForValidation({
+      isInitialized: true,
+      initialize: jest.fn(),
+      getRepository: jest.fn().mockReturnValue({
+        createQueryBuilder: jest.fn().mockReturnValue(builder),
+      }),
+    });
+  });
+
+  test('checks all values of an array in one query', async () => {
+    builder.getRawMany.mockResolvedValue([{ value: 1 }, { value: 2 }]);
+    await expect(validator.validate([1, 2], makeArgs([1, 2]))).resolves.toBe(
+      true,
+    );
+    expect(builder.getRawMany).toHaveBeenCalledTimes(1);
+    expect(builder.getRawOne).not.toHaveBeenCalled();
+  });
+
+  test('fails when one value does not exist', async () => {
+    builder.getRawMany.mockResolvedValue([{ value: 1 }]);
+    await expect(validator.validate([1, 3], makeArgs([1, 3]))).resolves.toBe(
+      false,
+    );
+  });
+
+  test('supports Sets', async () => {
+    const value = new Set([1]);
+    builder.getRawMany.mockResolvedValue([{ value: 1 }]);
+    await expect(validator.validate(value, makeArgs(value))).resolves.toBe(
+      true,
+    );
+  });
+
+  test('passes empty collections without querying', async () => {
+    await expect(validator.validate([], makeArgs([]))).resolves.toBe(true);
+    expect(builder.getRawMany).not.toHaveBeenCalled();
+  });
+
+  test('fails when the collection contains null or undefined without querying', async () => {
+    await expect(
+      validator.validate([1, null], makeArgs([1, null])),
+    ).resolves.toBe(false);
+    await expect(
+      validator.validate([undefined], makeArgs([undefined])),
+    ).resolves.toBe(false);
+    expect(builder.getRawMany).not.toHaveBeenCalled();
   });
 });

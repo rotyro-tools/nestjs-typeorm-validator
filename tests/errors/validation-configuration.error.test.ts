@@ -6,5 +6,12 @@ describe('ValidationConfigurationError test suite', () => {
     const e = new ValidationConfigurationError('bad config', meta);
     expect(e).toBeInstanceOf(Error);
     expect(e.name).toBe('ValidationConfigurationError');
+    expect(e.context).toBe(meta);
+  });
+
+  test('keeps the cause', () => {
+    const cause = new Error('No metadata for "X" was found.');
+    const e = new ValidationConfigurationError('bad config', {}, cause);
+    expect(e.cause).toBe(cause);
   });
 });
